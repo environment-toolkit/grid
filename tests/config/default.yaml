@@ -1,0 +1,10 @@
+service: grid
+srvaddr: :5000
+metricsaddr: :5001
+healthaddr: :5002
+data:
+  type: sqlite
+  sqlite:
+    memory: true
+stream:
+  type: noop

@@ -1,0 +1,51 @@
+name: import-api
+type: "@so0k/compute-beacons/container" # ContainerBeacon from @so0k/compute-beacons library
+props:
+  cluster: network-v1/fargate-cluster # fargate-cluster of the v1 network
+  image: ${{ var:image }}
+  port: 8080
+  desired: 2
+  cpu: 256
+  memory: 512
+  secrets:
+    SECURITY_SIGNKEY: ${{ secret:signkey }}
+  target:
+    edge: api
+    health:
+      path: /live
+      port: 8082
+      timeout: 25
+      interval: 30
+      unhealthy_threshold: 5
+      healthy_threshold: 5
+    rules:
+      - path: /stacks/import
+        priority: 100
+overrides:
+  - environment: prd
+    region: us-east-1
+    props:
+      env_vars:
+        UGLYDOMAIN_DOMAIN: n-cc.net
+  - environment: prd
+    props:
+      env_vars:
+        UGLYDOMAIN_DOMAIN2: n-cc.net
+
+resources:
+  - name: events
+    type: queue # QueueBeacon (namespace: compute)
+    props:
+      is_fifo: true
+      subscription: events
+  - name: db
+    type: database # DatabaseBeacon (namespace: compute)
+    props:
+      cluster: pg-cluster
+
+access:
+  inbound:
+    - site # not really needed since the edge references the api
+  outbound:
+    - config # not really needed since the container references the config
+    - identity # not really needed since the container references the identity
