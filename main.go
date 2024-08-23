@@ -17,7 +17,7 @@ func main() {
 		panic(err)
 	}
 
-	handler, err := handler.NewHandler(ctx, cfg)
+	handler, err := handler.NewHandler(ctx, cfg, nil)
 	if err != nil {
 		panic(err)
 	}

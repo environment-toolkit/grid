@@ -25,11 +25,19 @@ import (
 	"github.com/swaggest/rest/nethttp"
 )
 
+func TrySet(cfg *es.ProviderConfig, pubsub es.MemoryBusPubSub) {
+	if cfg.Stream.Memory == nil || pubsub == nil {
+		return
+	}
+
+	cfg.Stream.Memory.PubSub = pubsub
+}
+
 type Config struct {
 }
 
 // NewHandler creates a new http handler
-func NewHandler(ctx context.Context, cfg *xservice.ServiceConfig) (http.Handler, error) {
+func NewHandler(ctx context.Context, cfg *xservice.ServiceConfig, pubsub es.MemoryBusPubSub) (http.Handler, error) {
 	log := xlog.Logger(ctx)
 
 	appcfg := &Config{}
@@ -42,6 +50,9 @@ func NewHandler(ctx context.Context, cfg *xservice.ServiceConfig) (http.Handler,
 	if err := cfg.Parse(pcfg); err != nil {
 		return nil, err
 	}
+
+	TrySet(pcfg, pubsub)
+
 	cli, err := data.NewClient(ctx, pcfg)
 	if err != nil {
 		return nil, err

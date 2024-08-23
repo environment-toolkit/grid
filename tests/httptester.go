@@ -39,7 +39,7 @@ func NewHttpTester() (HttpTester, error) {
 	if err != nil {
 		return nil, err
 	}
-	h, err := handler.NewHandler(ctx, cfg)
+	h, err := handler.NewHandler(ctx, cfg, nil)
 	if err != nil {
 		return nil, err
 	}
