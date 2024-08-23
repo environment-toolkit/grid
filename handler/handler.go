@@ -13,9 +13,8 @@ import (
 
 	"github.com/go-apis/eventsourcing/es"
 	_ "github.com/go-apis/eventsourcing/es/providers/data/pg"
-	_ "github.com/go-apis/eventsourcing/es/providers/stream/apub"
+	_ "github.com/go-apis/eventsourcing/es/providers/data/sqlite"
 	_ "github.com/go-apis/eventsourcing/es/providers/stream/noop"
-	_ "github.com/go-apis/eventsourcing/es/providers/stream/npub"
 	"github.com/go-chi/chi/v5"
 
 	"github.com/go-apis/utils/xes"
