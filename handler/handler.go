@@ -34,6 +34,9 @@ func TrySet(cfg *es.ProviderConfig, pubsub es.MemoryBusPubSub) {
 }
 
 type Config struct {
+	Security struct {
+		SignKey string
+	}
 }
 
 // NewHandler creates a new http handler
@@ -43,6 +46,12 @@ func NewHandler(ctx context.Context, svc *xservice.Service, pubsub es.MemoryBusP
 	appcfg := &Config{}
 	if err := svc.Parse(appcfg); err != nil {
 		log.Error("failed to parse config", zap.Error(err))
+		return nil, err
+	}
+
+	security, err := xes.NewSecurity(appcfg.Security.SignKey)
+	if err != nil {
+		log.Error("failed to create security", zap.Error(err))
 		return nil, err
 	}
 
@@ -82,6 +91,7 @@ func NewHandler(ctx context.Context, svc *xservice.Service, pubsub es.MemoryBusP
 	s.Wrap(
 		nethttp.HTTPBearerSecurityMiddleware(s.OpenAPICollector, "auth", "Authentication", "JWT"),
 		es.CreateUnit(cli),
+		security.Middleware(true),
 	)
 
 	s.Get("/specs", xes.NewPagingEntityInteractor[*aggregates.Spec, *PagedSpecsInput]())
