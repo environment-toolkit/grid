@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/environment-toolkit/grid/handler"
+	"github.com/spf13/viper"
 
 	"github.com/go-apis/utils/xgraceful"
 	"github.com/go-apis/utils/xservice"
@@ -12,17 +13,18 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 
-	cfg, err := xservice.NewConfig(ctx)
+	v := viper.New()
+	svc, err := xservice.NewService(ctx, v)
 	if err != nil {
 		panic(err)
 	}
 
-	handler, err := handler.NewHandler(ctx, cfg, nil)
+	handler, err := handler.NewHandler(ctx, svc, nil)
 	if err != nil {
 		panic(err)
 	}
 
-	xgraceful.Serve(ctx, cfg, handler)
+	xgraceful.Serve(ctx, svc.ServiceConfig, handler)
 	cancel()
 
 	<-ctx.Done()

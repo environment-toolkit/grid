@@ -5,6 +5,7 @@ import (
 
 	"github.com/environment-toolkit/grid/data"
 	"github.com/environment-toolkit/grid/handler"
+	"github.com/spf13/viper"
 
 	"github.com/go-apis/eventsourcing/es"
 	_ "github.com/go-apis/eventsourcing/es/providers/data/sqlite"
@@ -28,7 +29,8 @@ func (h *serviceTester) Client() es.Client {
 func NewServiceTester() (ServiceTester, error) {
 	ctx := context.Background()
 
-	cfg, err := xservice.NewConfig(ctx)
+	v := viper.New()
+	cfg, err := xservice.NewService(ctx, v)
 	if err != nil {
 		return nil, err
 	}

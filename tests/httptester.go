@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/environment-toolkit/grid/handler"
+	"github.com/spf13/viper"
 
 	"github.com/go-apis/utils/xservice"
 )
@@ -35,7 +36,8 @@ func (h *httpTester) Close() {
 func NewHttpTester() (HttpTester, error) {
 	ctx := context.Background()
 
-	cfg, err := xservice.NewConfig(ctx)
+	v := viper.New()
+	cfg, err := xservice.NewService(ctx, v)
 	if err != nil {
 		return nil, err
 	}

@@ -37,17 +37,17 @@ type Config struct {
 }
 
 // NewHandler creates a new http handler
-func NewHandler(ctx context.Context, cfg *xservice.ServiceConfig, pubsub es.MemoryBusPubSub) (http.Handler, error) {
+func NewHandler(ctx context.Context, svc *xservice.Service, pubsub es.MemoryBusPubSub) (http.Handler, error) {
 	log := xlog.Logger(ctx)
 
 	appcfg := &Config{}
-	if err := cfg.Parse(appcfg); err != nil {
+	if err := svc.Parse(appcfg); err != nil {
 		log.Error("failed to parse config", zap.Error(err))
 		return nil, err
 	}
 
 	pcfg := &es.ProviderConfig{}
-	if err := cfg.Parse(pcfg); err != nil {
+	if err := svc.Parse(pcfg); err != nil {
 		return nil, err
 	}
 
@@ -61,7 +61,7 @@ func NewHandler(ctx context.Context, cfg *xservice.ServiceConfig, pubsub es.Memo
 	chi.RegisterMethod("LOCK")
 	chi.RegisterMethod("UNLOCK")
 
-	s := xopenapi.New(cfg)
+	s := xopenapi.New(svc.ServiceConfig)
 
 	// Setup middlewares.
 	s.Wrap(
