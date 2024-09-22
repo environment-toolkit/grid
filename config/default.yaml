@@ -8,3 +8,6 @@ data:
     file: grid.db
 stream:
   type: noop
+
+security:
+  enabled: true

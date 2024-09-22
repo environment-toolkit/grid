@@ -35,6 +35,7 @@ func TrySet(cfg *es.ProviderConfig, pubsub es.MemoryBusPubSub) {
 
 type Config struct {
 	Security struct {
+		Enabled bool
 		SignKey string
 	}
 }
@@ -46,12 +47,6 @@ func NewHandler(ctx context.Context, svc *xservice.Service, pubsub es.MemoryBusP
 	appcfg := &Config{}
 	if err := svc.Parse(appcfg); err != nil {
 		log.Error("failed to parse config", zap.Error(err))
-		return nil, err
-	}
-
-	security, err := xes.NewSecurity(appcfg.Security.SignKey)
-	if err != nil {
-		log.Error("failed to create security", zap.Error(err))
 		return nil, err
 	}
 
@@ -77,10 +72,6 @@ func NewHandler(ctx context.Context, svc *xservice.Service, pubsub es.MemoryBusP
 		es.CreateUnit(cli),
 	)
 
-	s.Post("/replay/deployment", xes.NewReplayAllInteractor("Deployment"))
-	s.Post("/replay/deploymentrevision", xes.NewReplayAllInteractor("DeploymentRevision"))
-	s.Post("/replay/config", xes.NewReplayAllInteractor("Config"))
-
 	s.Method(http.MethodGet, "/state/{namespace}/{id}/{key}", controllers.GetState())
 	s.Method(http.MethodPost, "/state/{namespace}/{id}/{key}", controllers.PostState())
 	s.Method(http.MethodDelete, "/state/{namespace}/{id}/{key}", controllers.DeleteState())
@@ -88,11 +79,21 @@ func NewHandler(ctx context.Context, svc *xservice.Service, pubsub es.MemoryBusP
 	s.Method("UNLOCK", "/state/{namespace}/{id}/{key}", controllers.UnlockState())
 
 	// Security
-	s.Wrap(
-		nethttp.HTTPBearerSecurityMiddleware(s.OpenAPICollector, "auth", "Authentication", "JWT"),
-		es.CreateUnit(cli),
-		security.Middleware(true),
-	)
+	if appcfg.Security.Enabled {
+		security, err := xes.NewSecurity(appcfg.Security.SignKey)
+		if err != nil {
+			log.Error("failed to create security", zap.Error(err))
+			return nil, err
+		}
+
+		s.Wrap(
+			nethttp.HTTPBearerSecurityMiddleware(s.OpenAPICollector, "auth", "Authentication", "JWT"),
+			security.Middleware(true),
+		)
+	}
+
+	s.Post("/replay/deployment", xes.NewReplayAllInteractor("Deployment"))
+	s.Post("/replay/config", xes.NewReplayAllInteractor("Config"))
 
 	s.Get("/specs", xes.NewPagingEntityInteractor[*aggregates.Spec, *PagedSpecsInput]())
 	s.Get("/specs/{id}", xes.NewGetEntityInteractor[*aggregates.Spec]())
