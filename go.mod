@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/swaggest/rest v0.2.66
+	github.com/swaggest/rest v0.2.67
 	go.uber.org/zap v1.27.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -87,7 +87,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/swaggest/form/v5 v5.1.1 // indirect
 	github.com/swaggest/jsonschema-go v0.3.72 // indirect
-	github.com/swaggest/openapi-go v0.2.53 // indirect
+	github.com/swaggest/openapi-go v0.2.54 // indirect
 	github.com/swaggest/refl v1.3.0 // indirect
 	github.com/swaggest/swgui v1.8.1 // indirect
 	github.com/swaggest/usecase v1.3.1 // indirect
